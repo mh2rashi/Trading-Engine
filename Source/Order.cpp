@@ -11,6 +11,7 @@ using std::chrono::system_clock;
 using std::cout;
 using std::endl;
 
+#include <memory>
 using std::shared_ptr;
 
 // Constructor
@@ -30,28 +31,22 @@ Order::Order(unsigned int input_id, std::string input_type, float input_price, f
 }
 
 // Match partial or complete orders
-bool Order::match(Order& incoming_order){
+bool Order::match(const std::shared_ptr<Order>& incoming_order){
 
 	// Can't match two of the same order types
-	if (incoming_order.type == this->type) {
-		return false;
-	}
-
-	// Only match Buy and Sell orders where Sell price < Buy price
-	if ( (incoming_order.type == "Buy" && incoming_order.price < this->price) ||
-		(incoming_order.type == "Sell" && incoming_order.price > this->price)) {
+	if (incoming_order->type == this->type) {
 		return false;
 	}
 
 	// Complete trade
-	if (peak_quantity <= incoming_order.peak_quantity) {
+	if (this->peak_quantity <= incoming_order->peak_quantity) {
 
 		order_status = OrderStatus::Filled;
 		auto transaction_quantity = peak_quantity;
 
 		// Execute trade for both orders
 		this->execute_transaction(transaction_quantity);
-		incoming_order.execute_transaction(transaction_quantity);
+		incoming_order->execute_transaction(transaction_quantity);
 
 		return true;
 	}
@@ -59,11 +54,11 @@ bool Order::match(Order& incoming_order){
 	else {
 
 		order_status = OrderStatus::PartiallyFilled;
-		auto transaction_quantity = incoming_order.peak_quantity;
+		auto transaction_quantity = incoming_order->peak_quantity;
 
 		// Execute trade for both orders
 		this->execute_transaction(transaction_quantity);
-		incoming_order.execute_transaction(transaction_quantity);
+		incoming_order->execute_transaction(transaction_quantity);
 
 		return false;
 	}
@@ -108,5 +103,12 @@ void Order::print_order() {
 		cout << "peak quantity: " << peak_quantity << endl;
 		cout << "peak quantity left: " << peak_quantity_left << endl;
 		cout << "transacted quantity: " << quantity_transacted << endl;
+}
 
+
+std::string Order::raw_order_info() const {
+	return "Order: type: " + type +
+		" id: " + std::to_string(id) +
+		" price: " + std::to_string(price) +
+		" qty: " + std::to_string(original_quantity);
 }
