@@ -1,7 +1,13 @@
 #pragma once
+
 #include <string>
 #include <memory>
+#include <vector>
+#include <map>
+#include <unordered_map>
+
 #include "Order.h"
+#include "Transactions.h"
 
 
 /*Composition class responsible for managing objects of Order class through a doubly
@@ -24,32 +30,25 @@ public:
 	LimitOrder() : head(nullptr), tail(nullptr), list_length(0) {};
 
 	// Head properties
-	std::shared_ptr<Order> getHead();
-	void setHead(const Order& incoming_order);
+	std::shared_ptr<Order> get_head();
+	void set_head(const std::shared_ptr<Order>& incoming_order);
+	void delete_head();
 
 	// Tail properties
-	std::shared_ptr<Order> getTail();
-	void setTail(const Order& incoming_order);
+	std::shared_ptr<Order> get_tail();
+	void set_tail(const std::shared_ptr<Order>& incoming_order);
+	void delete_tail();
 
-	int getLength() const;
+	// Length of LinkedList
+	int get_length() const;
 
-	void add_order(Order& incoming_order);
+	// Add an incoming order
+	void add_order(const std::shared_ptr<Order>& incoming_order);
 
+	// Delete an order
+	void delete_order(const std::shared_ptr<Order>& order_to_delete);
+
+	// Match order
+	void match_order(const std::shared_ptr<Order>& incoming_order, std::unordered_map<unsigned int, shared_ptr<Order>>& order_dict, Transactions& executed_orders);
 
 };
-
-def add_order(self, order) :
-	# First element
-	if self.head is None :
-order.nxt = None
-order.prev = None
-self.head = order
-self.tail = order
-# Add to tail
-	else:
-order.prev = self.tail
-order.nxt = None
-self.tail.nxt = order
-self.tail = order
-
-self._length += 1

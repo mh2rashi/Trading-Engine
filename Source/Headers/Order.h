@@ -4,7 +4,7 @@
 #include <chrono>
 
 #include <memory>
-using std::unique_ptr;
+
 
 enum OrderStatus {
 	NewOrder = 1,
@@ -21,7 +21,6 @@ public:
 	const float price;
 	const float original_quantity;
 
-public:
 	// Modifiable properties
 	OrderStatus order_status;
 
@@ -32,14 +31,14 @@ public:
 	std::chrono::time_point<std::chrono::system_clock> order_time;
 
 	// Doubly Linked List
-	shared_ptr<Order> next_order;
-	shared_ptr<Order> prev_order;
+	std::shared_ptr<Order> next_order;
+	std::shared_ptr<Order> prev_order;
 
 	// Constructor
 	Order(unsigned int input_id, std::string input_type, float input_price, float input_original_quantity);
 
 	// Match partial or complete orders
-	bool match(Order& incoming_oder);
+	bool match(const std::shared_ptr<Order>& incoming_oder);
 
 	// Execute the matched order, and update quantities
 	void execute_transaction(float const& input_quantity);
@@ -47,6 +46,8 @@ public:
 	// Restore peak quantity
 	void restore_peak_quantity();
 
+	// Print Order
 	void print_order();
 
+	std::string raw_order_info() const;
 };
