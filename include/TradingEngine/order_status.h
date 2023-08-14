@@ -14,7 +14,8 @@ Status map is used for string representation of Order info.
 enum class OrderStatus {
 	NEW_ORDER,
 	PARTIALLY_FILLED,
-	FILLED
+	FULFILLED,
+	STORED
 };
 
 extern std::unordered_map<OrderStatus, std::string> order_status_map;

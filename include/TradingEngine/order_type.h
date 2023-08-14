@@ -14,7 +14,7 @@ type map is used for string representation of Order info.
 enum class OrderType {
 	BUY,
 	SELL,
-	DEFAULT
+	CANCEL
 };
 
 extern std::unordered_map<OrderType, std::string> order_type_map;

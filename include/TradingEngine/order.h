@@ -13,7 +13,7 @@ Order class represents a data structure for handling incoming orders'.
 #include <chrono>
 #include <memory>
 #include <unordered_map>
-#include <optional>
+#include <iostream>
 
 #include "..\include\TradingEngine\order_type.h"
 #include "..\include\TradingEngine\order_status.h"
@@ -21,6 +21,7 @@ Order class represents a data structure for handling incoming orders'.
 
 class Order {
 public:
+  std::string symbol;
   unsigned int id;
 	
   OrderType type;
@@ -37,9 +38,10 @@ public:
   std::shared_ptr<Order> next_order; /* Order's are maintined in a doubly linked-list where each Order points to a potential next and previous Order. */
   std::shared_ptr<Order> prev_order; 
 
-  Order(unsigned int input_id, OrderType input_type, float input_price, float input_original_quantity);
+  Order(std::string input_symbol, unsigned int input_id, OrderType input_type, float input_price, float input_original_quantity);
 
   /* Getter functions. */
+  const std::string& getSymbol();
   const unsigned int& getID() const;
   const OrderType& getType() const; 
   const float& getPrice() const; 
@@ -62,8 +64,8 @@ public:
   /* Executes the matched order, and updates Order quantities. */
   void executeTransaction(const float& input_transaction_quantity);
 
-  /* Prints Order details. */
-  std::string orderInfo() const;
+  /* Store order information. */
+  void storeOrderInfo(std::ostringstream& output_data, const std::string& input_color);
 
 };
 

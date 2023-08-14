@@ -13,6 +13,7 @@ access to LimitOrder and Order objects.
 #include <unordered_map>
 #include <memory>
 #include <unordered_set>
+#include <sstream>
 
 #include "transactions.h"
 #include "order_type.h"
@@ -55,7 +56,7 @@ public:
 
 	void deleteLimitPrice(const float& limit_price);
 
-	Transactions matchPriceOrder(Order& incoming_order);
+	void matchPriceOrder(Order& incoming_order, std::ostringstream& store_transaction);
 
 };
 

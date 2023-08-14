@@ -3,6 +3,9 @@
 
 #include <cmath>
 
+#include <sstream>
+using std::ostringstream;
+
 #include <memory>
 using std::shared_ptr;
 
@@ -48,12 +51,12 @@ void OrderTree::addPriceOrder(Order& incoming_order) {
     order_set.insert(incoming_order.getID());
 
     // Update max and min prices
-    if (std::isnan(getMinPrice()) || getMinPrice() > incoming_order.getPrice()) {
-        setMinPrice(incoming_order.getPrice());
+    if (std::isnan(min_price) || min_price > incoming_order.getPrice()) {
+        min_price = incoming_order.getPrice();
     }
 
-    if (std::isnan(getMaxPrice()) || getMaxPrice() < incoming_order.getPrice()) {
-        setMaxPrice(incoming_order.getPrice());
+    if (std::isnan(max_price) || max_price < incoming_order.getPrice()) {
+        max_price = incoming_order.getPrice();
     }
 }
 
@@ -82,25 +85,25 @@ void OrderTree::deletePriceOrder(const std::shared_ptr<Order>& order_to_delete) 
     }
 
     /* Update max and min prices */
-    if (getMaxPrice() == order_to_delete->getPrice()) {
+    if (max_price == order_to_delete->getPrice()) {
 
         if (order_tree.empty()) {
-            setMaxPrice(std::numeric_limits<float>::quiet_NaN());
+            max_price = std::numeric_limits<float>::quiet_NaN();
         }
 
         else if (price_map.find(order_to_delete->getPrice()) == price_map.end()) {
-            setMaxPrice(order_tree.rbegin()->first);
+            max_price = order_tree.rbegin()->first;
         }
     }
 
-    if (getMinPrice() == order_to_delete->getPrice()) {
+    if (min_price == order_to_delete->getPrice()) {
 
         if (order_tree.empty()) {
-            setMinPrice(std::numeric_limits<float>::quiet_NaN());
+            min_price = std::numeric_limits<float>::quiet_NaN();
         }
 
         else if (price_map.find(order_to_delete->getPrice()) == price_map.end()) {
-            setMinPrice(order_tree.begin()->first);
+            min_price = order_tree.begin()->first;
         }
     }
 }
@@ -114,49 +117,46 @@ void OrderTree::deleteLimitPrice(const float& limit_price) {
     order_tree.erase(limit_price);
 
     /* Update max and min prices */
-    if (getMaxPrice() == limit_price) {
+    if (max_price == limit_price) {
 
         if (order_tree.empty()) {
-            setMaxPrice(std::numeric_limits<float>::quiet_NaN());
+            max_price = std::numeric_limits<float>::quiet_NaN();
         }
 
         else {
-            setMaxPrice(order_tree.rbegin()->first);
+            max_price = order_tree.rbegin()->first;
         }
     }
 
-    if (getMinPrice() == limit_price) {
+    if (min_price == limit_price) {
 
         if (order_tree.empty()) {
-            setMinPrice(std::numeric_limits<float>::quiet_NaN());
+            min_price = std::numeric_limits<float>::quiet_NaN();
         }
 
         else {
-            setMinPrice(order_tree.begin()->first);
+            min_price = order_tree.begin()->first;
         }
     }
 }
 
 /* Match incoming_order and return executed transactions */
-Transactions OrderTree::matchPriceOrder(Order& incoming_order) {
-
-    /* Transactions for the incoming_order */
-    Transactions transactions = Transactions();
+void OrderTree::matchPriceOrder(Order& incoming_order, ostringstream& store_transaction) {
 
     /* Check if no Orders exist */
     if (price_map.empty()) {
-        return transactions;
+        return;
     }
 
     /* Can't match two of the same Order types. */
-    if (incoming_order.getType() == getType()) {
-        return transactions;
+    if (incoming_order.getType() == type) {
+        return;
     }
 
     /* Buy Orders will match with the Min(Sell Tree).  We'll start the lowest price node
        (each node is a LimitOrder, which is a doubly LinkedList) and match until the incoming_order
        if filled. If the orders within the node are fully matched, we will move to the next node
-       (aka second lowest price node). Sell Order will similarly be be matched with Max(Buy Tree). */
+       (aka second lowest price node). Sell Order will similarly be be matched with Max (Buy Tree). */
 
     auto price_to_match = (incoming_order.getType() == OrderType::BUY) ? getMinPrice() : getMaxPrice();
     auto& orderPeakQuantity = incoming_order.getPeakQuantity();
@@ -170,7 +170,7 @@ Transactions OrderTree::matchPriceOrder(Order& incoming_order) {
 
         /* We access the appropriate LimitOrderand then start matching */
         LimitOrder& matching_LimitOrder = price_map[price_to_match];
-        matching_LimitOrder.matchOrder(incoming_order, order_set, transactions);
+        matching_LimitOrder.matchOrder(incoming_order, order_set, store_transaction);
 
         /* Delete LimitOrder if its empty */
         if (matching_LimitOrder.getListLength() == 0) {
@@ -183,5 +183,5 @@ Transactions OrderTree::matchPriceOrder(Order& incoming_order) {
             price_to_match = (incoming_order.getType() == OrderType::BUY) ? getMinPrice() : getMaxPrice();
         }
     }
-    return transactions;
+    return;
 }

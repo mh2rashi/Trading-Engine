@@ -8,7 +8,8 @@ using std::unordered_map;
 using std::string;
 
 unordered_map<OrderStatus, string> order_status_map = {
-	{OrderStatus::NEW_ORDER, "New Order"},
-	{OrderStatus::PARTIALLY_FILLED, "Partially Filled"},
-	{OrderStatus::FILLED, "Filled"}
+	{OrderStatus::NEW_ORDER,"NEW ORDER"},
+	{OrderStatus::PARTIALLY_FILLED,"PARTIALLY FILLED"},
+	{OrderStatus::FULFILLED,"FULFILLED"},
+	{OrderStatus::STORED,"STORED"}
 };

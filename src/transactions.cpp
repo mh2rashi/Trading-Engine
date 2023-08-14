@@ -1,5 +1,5 @@
 #pragma once
-#include "C:\Users\Hamza Rashid\Desktop\C++\Trading Engine\include\TradingEngine\transactions.h"
+#include "..\include\TradingEngine\transactions.h"
 
 #include <string>
 using std::string;
@@ -13,7 +13,7 @@ size_t Transactions::getLength() const {
 }
 
 /* Size of executed order's */
-size_t Transactions::getExecutedOrders() const {
+size_t Transactions::getNumberOfExecutedOrders() const {
 	return getLength() / 2;
 }
 

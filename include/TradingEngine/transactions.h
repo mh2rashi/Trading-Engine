@@ -22,11 +22,9 @@ public:
 	size_t getLength() const;
 
 	/* Size of executed order's */
-	size_t getExecutedOrders() const;
+	size_t getNumberOfExecutedOrders() const;
 
 	void addOrder(const std::string& raw_order);
 };
 	
 #endif // !TRADING_ENGINE_SOURCE_HEADERS_TRANSACTIONS_H_
-
-

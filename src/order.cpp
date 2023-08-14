@@ -4,6 +4,9 @@
 #include <algorithm>
 using std::min;
 
+#include <sstream>
+using std::ostringstream;
+
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -19,8 +22,8 @@ using std::to_string;
 #include "..\include\TradingEngine\order_type.h"
 #include "..\include\TradingEngine\order_status.h"
 
-Order::Order(unsigned int input_id, OrderType input_type, float input_price, float input_original_quantity): 
-	id(input_id), type(input_type), price(input_price), original_quantity(input_original_quantity){
+Order::Order(string input_symbol,unsigned int input_id, OrderType input_type, float input_price, float input_original_quantity):
+	symbol(input_symbol), id(input_id), type(input_type), price(input_price), original_quantity(input_original_quantity) {
 	
 	order_status = OrderStatus::NEW_ORDER; 
 
@@ -31,6 +34,10 @@ Order::Order(unsigned int input_id, OrderType input_type, float input_price, flo
 	next_order = nullptr;
 	prev_order = nullptr;
 	 
+}
+
+const std::string& Order::getSymbol() {
+	return symbol;
 }
 
 const unsigned int& Order::getID() const {
@@ -87,12 +94,12 @@ is greater than the current order's quantity. */
 bool Order::Match(Order& incoming_order){
 
 	/* Complete trade. */
-	if (getPeakQuantity() <= incoming_order.getPeakQuantity()) {
+	if (peak_quantity <= incoming_order.getPeakQuantity()) {
 
 		/* Update Order status. */
-		setOrderStatus(OrderStatus::FILLED);
-		if (getPeakQuantity() == incoming_order.getPeakQuantity()) {
-			incoming_order.setOrderStatus(OrderStatus::FILLED);
+		order_status = OrderStatus::FULFILLED;
+		if (peak_quantity == incoming_order.getPeakQuantity()) {
+			incoming_order.setOrderStatus(OrderStatus::FULFILLED);
 		}
 		else {
 			incoming_order.setOrderStatus(OrderStatus::PARTIALLY_FILLED);
@@ -109,8 +116,8 @@ bool Order::Match(Order& incoming_order){
 	else {
 
 		/* Update Order status. */
-		setOrderStatus(OrderStatus::PARTIALLY_FILLED);
-		incoming_order.setOrderStatus(OrderStatus::FILLED);
+		order_status = OrderStatus::PARTIALLY_FILLED;
+		incoming_order.setOrderStatus(OrderStatus::FULFILLED);
 
 		// Execute trade for both orders
 		auto transaction_quantity = incoming_order.peak_quantity;
@@ -129,14 +136,12 @@ void Order::executeTransaction(const float& input_transaction_quantity) {
 	setPeakQuantity(-input_transaction_quantity);
 }
 
-/* Order information details. */
-std::string Order::orderInfo() const {
-	return "Order:- ID: " + to_string(getID()) +
-		", Type: " + order_type_map[getType()] +
-		", Price: " + to_string(getPrice()) +
-		", Order_status: " + order_status_map[getStatus()] +
-		", Original_quantity: " + to_string(getOriginalQuantity()) +
-		", Transacted_quantity: " + to_string(getQuantityTransacted()) +
-		", Quantity_left: " + to_string(getPeakQuantity()) +
-		", Total_transacted_quantity: " + to_string(getTotalQuantityTransacted());
+void Order::storeOrderInfo(ostringstream& output_data, const string& input_color) {
+	
+	output_data << input_color << "Order:- Symbol: " << symbol << ", ID: " <<  id << ", Type: " <<
+		order_type_map[type] << ", Price: " << price <<
+		", Orignal Quantity: " << original_quantity <<
+		", Quantity Left: " << peak_quantity <<
+		", Status: " << order_status_map[order_status] << "\033[0m" << std::endl;
 }
+

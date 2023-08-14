@@ -9,6 +9,7 @@ using std::string;
 
 
 unordered_map<OrderType, string> order_type_map = {
-	{OrderType::BUY, "Buy"},
-	{OrderType::SELL, "Sell"}
+	{OrderType::BUY,"BUY"},
+	{OrderType::SELL,"SELL"},
+	{OrderType::CANCEL,"CANCEL"}
 };
