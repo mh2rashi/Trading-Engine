@@ -1,0 +1,24 @@
+# Compiler
+CXX := g++
+# Compiler flags
+CXXFLAGS := -std=c++11 -Wall
+# Output executable name
+TARGET := trading_engine
+
+# List of source files
+SOURCES := main.cpp transactions.cpp order_type.cpp order_status.cpp order.cpp limit_order.cpp order_tree.cpp order_book.cpp
+
+# Object files derived from the source files
+OBJECTS := $(SOURCES:.cpp=.o)
+
+# Main rule to build the executable
+$(TARGET): $(OBJECTS)
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+# Rule to build object files
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Clean rule to remove generated files
+clean:
+	rm -f $(OBJECTS) $(TARGET)
